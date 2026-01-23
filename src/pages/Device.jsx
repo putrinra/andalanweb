@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Edit, Trash2, QrCode, X, Camera } from "lucide-react";
-import { QrReader } from 'react-qr-reader';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import searchIcon from "../assets/search.png";
 import "../styles/device.css";
 
@@ -17,6 +17,8 @@ export default function Device() {
     status: "Active",
     qrCode: ""
   });
+  const qrScannerRef = useRef(null);
+
   const [devices, setDevices] = useState([
     { id: 1, name: "Device 1", status: "Active", location: "Area A", range: "100m", qrCode: "QR001" },
     { id: 2, name: "Device 2", status: "Active", location: "Area B", range: "150m", qrCode: "QR002" },
@@ -27,6 +29,41 @@ export default function Device() {
     { id: 7, name: "Device 7", status: "Active", location: "Area C", range: "110m", qrCode: "QR007" },
     { id: 8, name: "Device 8", status: "Active", location: "Area D", range: "130m", qrCode: "QR008" },
   ]);
+
+  // QR Scanner useEffect
+  useEffect(() => {
+    if (showQrScanner && !qrScannerRef.current) {
+      const scanner = new Html5QrcodeScanner('qr-reader', {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+      });
+      
+      scanner.render(
+        (decodedText) => {
+          setNewDevice({...newDevice, qrCode: decodedText});
+          setShowQrScanner(false);
+          if (qrScannerRef.current) {
+            qrScannerRef.current.clear().catch(console.error);
+            qrScannerRef.current = null;
+          }
+          alert(`QR Code Scanned: ${decodedText}`);
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
+      
+      qrScannerRef.current = scanner;
+    }
+
+    return () => {
+      if (qrScannerRef.current && !showQrScanner) {
+        qrScannerRef.current.clear().catch(console.error);
+        qrScannerRef.current = null;
+      }
+    };
+  }, [showQrScanner]);
 
   const filteredDevices = devices.filter(device =>
     device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,18 +83,6 @@ export default function Device() {
 
   const handleOpenQrScanner = () => {
     setShowQrScanner(true);
-  };
-
-  const handleQrScan = (result) => {
-    if (result) {
-      setNewDevice({...newDevice, qrCode: result.text});
-      setShowQrScanner(false);
-      alert(`QR Code Scanned: ${result.text}`);
-    }
-  };
-
-  const handleQrError = (error) => {
-    console.error(error);
   };
 
   const handleSaveNewDevice = () => {
@@ -88,6 +113,10 @@ export default function Device() {
   const handleCancelAdd = () => {
     setShowAddModal(false);
     setShowQrScanner(false);
+    if (qrScannerRef.current) {
+      qrScannerRef.current.clear().catch(console.error);
+      qrScannerRef.current = null;
+    }
     setNewDevice({
       name: "",
       location: "Area A",
@@ -113,6 +142,7 @@ export default function Device() {
     ));
     setShowEditModal(false);
     setEditingDevice(null);
+    alert("Device berhasil diupdate!");
   };
 
   const handleCancelEdit = () => {
@@ -123,11 +153,20 @@ export default function Device() {
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this device?")) {
       setDevices(devices.filter(device => device.id !== id));
+      alert("Device berhasil dihapus!");
     }
   };
 
   const handleViewRange = (device) => {
     alert(`Range for ${device.name}: ${device.range}\nLocation: ${device.location}`);
+  };
+
+  const handleCancelScan = () => {
+    setShowQrScanner(false);
+    if (qrScannerRef.current) {
+      qrScannerRef.current.clear().catch(console.error);
+      qrScannerRef.current = null;
+    }
   };
 
   return (
@@ -150,57 +189,63 @@ export default function Device() {
       </div>
 
       <div className="device-grid">
-        {filteredDevices.map((device) => (
-          <div key={device.id} className="device-card">
-            <div className="device-header">
-              <h3>{device.name}</h3>
-              <span className={`device-status status-${device.status.toLowerCase()}`}>
-                {device.status}
-              </span>
-            </div>
-            
-            <div className="device-body">
-              <div className="device-info-item">
-                <span className="device-info-label">Location:</span>
-                <span className="device-info-value">{device.location}</span>
+        {filteredDevices.length > 0 ? (
+          filteredDevices.map((device) => (
+            <div key={device.id} className="device-card">
+              <div className="device-header">
+                <h3>{device.name}</h3>
+                <span className={`device-status status-${device.status.toLowerCase()}`}>
+                  {device.status}
+                </span>
               </div>
-              <div className="device-info-item">
-                <span className="device-info-label">Range:</span>
-                <span className="device-info-value">{device.range}</span>
+              
+              <div className="device-body">
+                <div className="device-info-item">
+                  <span className="device-info-label">Location:</span>
+                  <span className="device-info-value">{device.location}</span>
+                </div>
+                <div className="device-info-item">
+                  <span className="device-info-label">Range:</span>
+                  <span className="device-info-value">{device.range}</span>
+                </div>
+                <div className="device-info-item">
+                  <span className="device-info-label">QR Code:</span>
+                  <span className="device-info-value">{device.qrCode}</span>
+                </div>
               </div>
-              <div className="device-info-item">
-                <span className="device-info-label">QR Code:</span>
-                <span className="device-info-value">{device.qrCode}</span>
-              </div>
-            </div>
 
-            <div className="device-actions">
-              <button 
-                className="device-action-btn range-btn"
-                onClick={() => handleViewRange(device)}
-                title="View Range"
-              >
-                <span>Range</span>
-              </button>
-              <button 
-                className="device-action-btn edit-btn"
-                onClick={() => handleEdit(device)}
-                title="Edit Device"
-              >
-                <Edit size={16} />
-                <span>Edit</span>
-              </button>
-              <button 
-                className="device-action-btn delete-btn"
-                onClick={() => handleDelete(device.id)}
-                title="Delete Device"
-              >
-                <Trash2 size={16} />
-                <span>Delete</span>
-              </button>
+              <div className="device-actions">
+                <button 
+                  className="device-action-btn range-btn"
+                  onClick={() => handleViewRange(device)}
+                  title="View Range"
+                >
+                  <span>Range</span>
+                </button>
+                <button 
+                  className="device-action-btn edit-btn"
+                  onClick={() => handleEdit(device)}
+                  title="Edit Device"
+                >
+                  <Edit size={16} />
+                  <span>Edit</span>
+                </button>
+                <button 
+                  className="device-action-btn delete-btn"
+                  onClick={() => handleDelete(device.id)}
+                  title="Delete Device"
+                >
+                  <Trash2 size={16} />
+                  <span>Delete</span>
+                </button>
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="no-devices">
+            <p>No devices found</p>
           </div>
-        ))}
+        )}
       </div>
 
       {/* ADD DEVICE MODAL */}
@@ -289,15 +334,10 @@ export default function Device() {
               ) : (
                 <div className="qr-scanner-container">
                   <h3>Scan QR Code</h3>
-                  <QrReader
-                    constraints={{ facingMode: 'environment' }}
-                    onResult={handleQrScan}
-                    onError={handleQrError}
-                    style={{ width: '100%' }}
-                  />
+                  <div id="qr-reader" style={{ width: '100%' }}></div>
                   <button 
                     className="btn-cancel" 
-                    onClick={() => setShowQrScanner(false)}
+                    onClick={handleCancelScan}
                     style={{ marginTop: '15px', width: '100%' }}
                   >
                     Cancel Scan
@@ -378,6 +418,21 @@ export default function Device() {
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label>QR Code</label>
+                <input
+                  type="text"
+                  value={editingDevice.qrCode}
+                  readOnly
+                  className="form-input"
+                  disabled
+                  style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                />
+                <small style={{ color: '#666', fontSize: '12px' }}>
+                  QR Code cannot be changed
+                </small>
               </div>
             </div>
 
