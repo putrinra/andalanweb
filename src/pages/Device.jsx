@@ -30,7 +30,6 @@ export default function Device() {
     { id: 8, name: "Device 8", status: "Active", location: "Area D", range: "130m", qrCode: "QR008" },
   ]);
 
-  // QR Scanner useEffect
   useEffect(() => {
     if (showQrScanner && !qrScannerRef.current) {
       const scanner = new Html5QrcodeScanner('qr-reader', {
@@ -91,7 +90,6 @@ export default function Device() {
       return;
     }
 
-    // Check if QR code already exists
     if (devices.some(device => device.qrCode === newDevice.qrCode)) {
       alert("QR Code sudah terdaftar!");
       return;
@@ -248,7 +246,6 @@ export default function Device() {
         )}
       </div>
 
-      {/* ADD DEVICE MODAL */}
       {showAddModal && (
         <>
           <div className="modal-overlay" onClick={handleCancelAdd}></div>
@@ -360,7 +357,6 @@ export default function Device() {
         </>
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && editingDevice && (
         <>
           <div className="modal-overlay" onClick={handleCancelEdit}></div>
