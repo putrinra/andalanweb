@@ -30,6 +30,10 @@ function App() {
     setCurrentPage("dashboard");
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   const renderPage = () => {
     switch(currentPage) {
       case "dashboard":
@@ -47,6 +51,23 @@ function App() {
     }
   };
 
+  const formatPageTitle = (page) => {
+  switch(page) {
+    case "dashboard":
+      return "DASHBOARD";
+    case "device":
+      return "DEVICE";
+    case "manpower":
+      return "MAN POWER";
+    case "parts":
+      return "PARTS";
+    case "workorder":
+      return "WORK ORDER";
+    default:
+      return page.toUpperCase();
+  }
+};
+
   if (!isAuth) {
     return <Login onLogin={handleLogin} />;
   }
@@ -55,12 +76,13 @@ function App() {
     <div className="app-layout">
       {/* ===== TOPBAR ===== */}
       <header className="topbar">
-        <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
+        <button className="menu-btn" onClick={toggleSidebar}>
           <img src={menuIcon} alt="Menu" />
+          <title>Toggle Sidebar</title>
         </button>
 
         <h1 className="topbar-title">
-          {currentPage.toUpperCase()}
+          {formatPageTitle(currentPage)}
         </h1>
 
         <div className="topbar-right">
