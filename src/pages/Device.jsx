@@ -220,8 +220,7 @@ export default function Device() {
           </tbody>
         </table>
       </div>
-
-      {/* Add Modal */}
+      
       {showAddModal && (
         <>
           <div className="modal-overlay" onClick={handleCloseAddModal}></div>
@@ -281,7 +280,6 @@ export default function Device() {
         </>
       )}
 
-      {/* Edit Modal */}
       {showEditModal && editingDevice && (
         <>
           <div className="modal-overlay" onClick={handleCloseEditModal}></div>
