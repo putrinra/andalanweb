@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Monitor, Users, Wrench, ClipboardList, Calendar, MapPin, Activity, X, Download, Zap, Thermometer, Gauge } from "lucide-react";
+import { Monitor, Users, Wrench, ClipboardList, Calendar, Activity, X, Download, Zap, Thermometer, Gauge, Battery, TrendingUp } from "lucide-react";
 import StatCard from "../components/StatCard";
 import "../styles/dashboard.css";
 
@@ -22,10 +22,15 @@ export default function Dashboard() {
       id: 1,
       name: "Device 1",
       status: "Active",
-      location: "Area A",
       lastMaintenance: "2026-01-20",
       uptime: "98.5%",
+      // Power Meter Parameters
+      voltage: "380 V",
+      current: "12.5 A",
+      power: "4.75 kW",
       kwh: "1,245 kWh",
+      powerFactor: "0.95",
+      frequency: "50 Hz",
       temperature: "45°C",
       pressure: "2.5 Bar",
       runtime: "2,340 hrs",
@@ -60,10 +65,15 @@ export default function Dashboard() {
       id: 2,
       name: "Device 2",
       status: "Active",
-      location: "Area B",
       lastMaintenance: "2026-01-18",
       uptime: "95.2%",
+      // Power Meter Parameters
+      voltage: "380 V",
+      current: "9.8 A",
+      power: "3.72 kW",
       kwh: "980 kWh",
+      powerFactor: "0.92",
+      frequency: "50 Hz",
       temperature: "42°C",
       pressure: "2.2 Bar",
       runtime: "1,890 hrs",
@@ -93,10 +103,15 @@ export default function Dashboard() {
       id: 3,
       name: "Device 3",
       status: "Warning",
-      location: "Area C",
       lastMaintenance: "2026-01-15",
       uptime: "89.7%",
+      // Power Meter Parameters
+      voltage: "375 V",
+      current: "15.2 A",
+      power: "5.70 kW",
       kwh: "1,567 kWh",
+      powerFactor: "0.88",
+      frequency: "49.8 Hz",
       temperature: "58°C",
       pressure: "1.8 Bar",
       runtime: "3,120 hrs",
@@ -124,10 +139,15 @@ export default function Dashboard() {
       id: 4,
       name: "Device 4",
       status: "Active",
-      location: "Area D",
       lastMaintenance: "2026-01-22",
       uptime: "99.1%",
+      // Power Meter Parameters
+      voltage: "382 V",
+      current: "7.3 A",
+      power: "2.79 kW",
       kwh: "765 kWh",
+      powerFactor: "0.97",
+      frequency: "50.1 Hz",
       temperature: "38°C",
       pressure: "2.8 Bar",
       runtime: "1,234 hrs",
@@ -188,10 +208,6 @@ export default function Dashboard() {
 
             <div className="device-card-info">
               <div className="info-row">
-                <MapPin size={16} />
-                <span>{device.location}</span>
-              </div>
-              <div className="info-row">
                 <Activity size={16} />
                 <span>Uptime: {device.uptime}</span>
               </div>
@@ -199,9 +215,31 @@ export default function Dashboard() {
                 <Calendar size={16} />
                 <span>Last Maintenance: {device.lastMaintenance}</span>
               </div>
+              
+              {/* Power Meter Parameters */}
               <div className="info-row">
                 <Zap size={16} />
-                <span>Power: {device.kwh}</span>
+                <span>Voltage: {device.voltage}</span>
+              </div>
+              <div className="info-row">
+                <Battery size={16} />
+                <span>Current: {device.current}</span>
+              </div>
+              <div className="info-row">
+                <TrendingUp size={16} />
+                <span>Power: {device.power}</span>
+              </div>
+              <div className="info-row">
+                <Zap size={16} />
+                <span>Energy: {device.kwh}</span>
+              </div>
+              <div className="info-row">
+                <Activity size={16} />
+                <span>PF: {device.powerFactor}</span>
+              </div>
+              <div className="info-row">
+                <Activity size={16} />
+                <span>Freq: {device.frequency}</span>
               </div>
               <div className="info-row">
                 <Thermometer size={16} />
@@ -337,6 +375,40 @@ export default function Dashboard() {
                   <div className="detail-item-simple">
                     <span className="label">Part</span>
                     <span className="value">{selectedDevice.assignedParts}</span>
+                  </div>
+                  
+                  <h4 style={{ marginTop: '20px', marginBottom: '10px', color: '#0b4a8b', fontWeight: '600' }}>Power Meter Data</h4>
+                  <div className="detail-item-simple">
+                    <span className="label">Voltage</span>
+                    <span className="value">{selectedDevice.voltage}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Current</span>
+                    <span className="value">{selectedDevice.current}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Power</span>
+                    <span className="value">{selectedDevice.power}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Energy (kWh)</span>
+                    <span className="value">{selectedDevice.kwh}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Power Factor</span>
+                    <span className="value">{selectedDevice.powerFactor}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Frequency</span>
+                    <span className="value">{selectedDevice.frequency}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Temperature</span>
+                    <span className="value">{selectedDevice.temperature}</span>
+                  </div>
+                  <div className="detail-item-simple">
+                    <span className="label">Pressure</span>
+                    <span className="value">{selectedDevice.pressure}</span>
                   </div>
                 </div>
               </div>
