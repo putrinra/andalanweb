@@ -8,7 +8,15 @@ import "../styles/manpower.css";
 export default function ManPower() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
+  const [addForm, setAddForm] = useState({
+    nama: "",
+    nik: "",
+    department: "Engineering",
+    position: "",
+    status: "Active"
+  });
 
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -30,7 +38,62 @@ export default function ManPower() {
   );
 
   const handleAddManPower = () => {
-    console.log("Add man power clicked");
+    setAddForm({
+      nama: "",
+      nik: "",
+      department: "Engineering",
+      position: "",
+      status: "Active"
+    });
+    setShowAddModal(true);
+  };
+
+  const handleAddFormChange = (field, value) => {
+    setAddForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveAdd = () => {
+    if (!addForm.nama || !addForm.nik || !addForm.department || !addForm.position) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const nikExists = manPowerData.some(person => person.nik === addForm.nik);
+    if (nikExists) {
+      alert("NIK already exists. Please use a different NIK.");
+      return;
+    }
+
+    const newId = manPowerData.length > 0 ? Math.max(...manPowerData.map(p => p.id)) + 1 : 1;
+    const newNo = manPowerData.length > 0 ? Math.max(...manPowerData.map(p => p.no)) + 1 : 1;
+
+    const newPerson = {
+      id: newId,
+      no: newNo,
+      nama: addForm.nama,
+      nik: addForm.nik,
+      department: addForm.department,
+      position: addForm.position,
+      status: addForm.status
+    };
+
+    setManPowerData(prev => [...prev, newPerson]);
+    handleCloseAddModal();
+    alert("Man Power added successfully!");
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setAddForm({
+      nama: "",
+      nik: "",
+      department: "Engineering",
+      position: "",
+      status: "Active"
+    });
   };
 
   const sanitizeFilePart = (s) =>
@@ -55,7 +118,6 @@ export default function ManPower() {
 <head>
   <meta charset="utf-8">
   <title>QR</title>
-  <!-- supaya Word baca ini sebagai dokumen -->
   <!--[if gte mso 9]>
   <xml>
     <w:WordDocument>
@@ -144,6 +206,7 @@ export default function ManPower() {
     ));
     setShowEditModal(false);
     setEditingPerson(null);
+    alert("Man Power updated successfully!");
   };
 
   const handleCancelEdit = () => {
@@ -154,6 +217,7 @@ export default function ManPower() {
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this person?")) {
       setManPowerData(manPowerData.filter(person => person.id !== id));
+      alert("Man Power deleted successfully!");
     }
   };
 
@@ -289,6 +353,90 @@ export default function ManPower() {
         </>
       )}
 
+      {showAddModal && (
+        <>
+          <div className="modal-overlay" onClick={handleCloseAddModal}></div>
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Add New Man Power</h2>
+              <button className="modal-close" onClick={handleCloseAddModal}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nama *</label>
+                <input
+                  type="text"
+                  value={addForm.nama}
+                  onChange={(e) => handleAddFormChange("nama", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>NIK *</label>
+                <input
+                  type="text"
+                  value={addForm.nik}
+                  onChange={(e) => handleAddFormChange("nik", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan NIK"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Department *</label>
+                <select
+                  value={addForm.department}
+                  onChange={(e) => handleAddFormChange("department", e.target.value)}
+                  className="form-input"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Quality">Quality</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Position *</label>
+                <input
+                  type="text"
+                  value={addForm.position}
+                  onChange={(e) => handleAddFormChange("position", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan posisi"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={addForm.status}
+                  onChange={(e) => handleAddFormChange("status", e.target.value)}
+                  className="form-input"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleCloseAddModal}>
+                Cancel
+              </button>
+              <button className="btn-save" onClick={handleSaveAdd}>
+                Add Man Power
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {showEditModal && editingPerson && (
         <>
           <div className="modal-overlay" onClick={handleCancelEdit}></div>
@@ -312,12 +460,12 @@ export default function ManPower() {
               </div>
 
               <div className="form-group">
-                <label>NIK</label>
+                <label>NIK (Read Only)</label>
                 <input
                   type="text"
                   value={editingPerson.nik}
-                  onChange={(e) => setEditingPerson({ ...editingPerson, nik: e.target.value })}
-                  className="form-input"
+                  disabled
+                  className="form-input disabled"
                 />
               </div>
 
