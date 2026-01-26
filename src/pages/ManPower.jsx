@@ -10,7 +10,6 @@ export default function ManPower() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
 
-  // ✅ state untuk QR popup
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [qrPayload, setQrPayload] = useState(null);
@@ -34,14 +33,12 @@ export default function ManPower() {
     console.log("Add man power clicked");
   };
 
-  // ✅ helper: sanitize nama file
   const sanitizeFilePart = (s) =>
     String(s || "")
       .trim()
       .replace(/\s+/g, "_")
       .replace(/[^\w\-]+/g, "_");
 
-  // ✅ Download Word .doc (HTML) hanya QR saja (tanpa teks)
   const handleDownloadWord = () => {
     try {
       if (!qrPayload || !qrDataUrl) return;
@@ -51,7 +48,6 @@ export default function ManPower() {
       const idPart = sanitizeFilePart(qrPayload.id);
       const filename = `QR_${nikPart}_${namaPart}_${idPart}.doc`;
 
-      // Word-compatible HTML (isi cuma gambar QR, center)
       const html = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -91,7 +87,6 @@ export default function ManPower() {
     }
   };
 
-  // ✅ generate QR dari JSON yang diambil dari data row (anggap dari DB)
   const handleViewQR = async (person) => {
     try {
       setQrError("");
@@ -252,7 +247,6 @@ export default function ManPower() {
         </table>
       </div>
 
-      {/* ✅ QR MODAL (popup + download Word .doc) */}
       {showQrModal && (
         <>
           <div className="modal-overlay" onClick={handleCloseQrModal}></div>
@@ -295,7 +289,6 @@ export default function ManPower() {
         </>
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && editingPerson && (
         <>
           <div className="modal-overlay" onClick={handleCancelEdit}></div>
