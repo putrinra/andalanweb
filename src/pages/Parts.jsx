@@ -7,37 +7,221 @@ import "../styles/parts.css";
 
 export default function Parts() {
   const [searchQuery, setSearchQuery] = useState("");
-
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [qrPayload, setQrPayload] = useState(null);
   const [qrError, setQrError] = useState("");
   const [qrGenerating, setQrGenerating] = useState(false);
+  const [editingPart, setEditingPart] = useState(null);
+  const [editForm, setEditForm] = useState({
+    nama: "",
+    woNumber: "",
+    startDate: "",
+    endDate: "",
+    status: "Working",
+    isClosed: false
+  });
+  const [addForm, setAddForm] = useState({
+    nama: "",
+    woNumber: "",
+    startDate: "",
+    endDate: "",
+    status: "Working",
+    isClosed: false
+  });
 
-  const partsData = [
-    { no: 1, nama: "Bearing", kode: "BRG-001", stok: 150, satuan: "Pcs" },
-    { no: 2, nama: "Belt", kode: "BLT-002", stok: 80, satuan: "Meter" },
-    { no: 3, nama: "Oil Filter", kode: "OFL-003", stok: 200, satuan: "Pcs" },
-    { no: 4, nama: "Gasket", kode: "GSK-004", stok: 300, satuan: "Pcs" },
-    { no: 5, nama: "Bolt M10", kode: "BLT-005", stok: 500, satuan: "Pcs" },
-  ];
+  const [partsData, setPartsData] = useState([
+    { 
+      no: 1, 
+      nama: "Bearing", 
+      woNumber: "WO-001",
+      startDate: "2026-01-15",
+      endDate: "2026-01-25",
+      status: "Working",
+      isClosed: false
+    },
+    { 
+      no: 2, 
+      nama: "Belt", 
+      woNumber: "WO-002",
+      startDate: "2026-01-18",
+      endDate: "2026-01-28",
+      status: "Working",
+      isClosed: false
+    },
+    { 
+      no: 3, 
+      nama: "Oil Filter", 
+      woNumber: "WO-003",
+      startDate: "2026-01-10",
+      endDate: "2026-01-20",
+      status: "Not Working",
+      isClosed: true
+    },
+    { 
+      no: 4, 
+      nama: "Gasket", 
+      woNumber: "WO-004",
+      startDate: "2026-01-12",
+      endDate: "2026-01-22",
+      status: "Working",
+      isClosed: false
+    },
+    { 
+      no: 5, 
+      nama: "Bolt M10", 
+      woNumber: "WO-005",
+      startDate: "2026-01-20",
+      endDate: "2026-01-30",
+      status: "Not Working",
+      isClosed: false
+    },
+  ]);
 
   const filteredParts = partsData.filter(
     (part) =>
       part.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      part.kode.toLowerCase().includes(searchQuery.toLowerCase())
+      part.woNumber.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAddPart = () => {
-    console.log("Add part clicked");
+    setAddForm({
+      nama: "",
+      woNumber: "",
+      startDate: "",
+      endDate: "",
+      status: "Working",
+      isClosed: false
+    });
+    setShowAddModal(true);
+  };
+
+  const handleAddFormChange = (field, value) => {
+    setAddForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveAdd = () => {
+    if (!addForm.nama || !addForm.woNumber || !addForm.startDate || !addForm.endDate) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const woExists = partsData.some(part => part.woNumber === addForm.woNumber);
+    if (woExists) {
+      alert("WO Number already exists. Please use a different WO Number.");
+      return;
+    }
+
+    const newNo = partsData.length > 0 ? Math.max(...partsData.map(p => p.no)) + 1 : 1;
+
+    const newPart = {
+      no: newNo,
+      nama: addForm.nama,
+      woNumber: addForm.woNumber,
+      startDate: addForm.startDate,
+      endDate: addForm.endDate,
+      status: addForm.status,
+      isClosed: addForm.isClosed
+    };
+
+    setPartsData(prev => [...prev, newPart]);
+    handleCloseAddModal();
+    alert("Part added successfully!");
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setAddForm({
+      nama: "",
+      woNumber: "",
+      startDate: "",
+      endDate: "",
+      status: "Working",
+      isClosed: false
+    });
   };
 
   const handleEdit = (part) => {
-    console.log("Edit part:", part);
+    setEditingPart(part);
+    setEditForm({
+      nama: part.nama,
+      woNumber: part.woNumber,
+      startDate: part.startDate,
+      endDate: part.endDate,
+      status: part.status,
+      isClosed: part.isClosed
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingPart) return;
+
+    setPartsData(prevData =>
+      prevData.map(part =>
+        part.no === editingPart.no
+          ? {
+              ...part,
+              nama: editForm.nama,
+              woNumber: editForm.woNumber,
+              startDate: editForm.startDate,
+              endDate: editForm.endDate,
+              status: editForm.status,
+              isClosed: editForm.isClosed
+            }
+          : part
+      )
+    );
+
+    handleCloseEditModal();
+    alert("Part updated successfully!");
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingPart(null);
+    setEditForm({
+      nama: "",
+      woNumber: "",
+      startDate: "",
+      endDate: "",
+      status: "Working",
+      isClosed: false
+    });
   };
 
   const handleDelete = (part) => {
-    console.log("Delete part:", part);
+    if (window.confirm(`Are you sure you want to delete ${part.nama}?`)) {
+      setPartsData(prevData => prevData.filter(p => p.no !== part.no));
+    }
+  };
+
+  const handleStatusChange = (partNo, newStatus) => {
+    setPartsData(prevData =>
+      prevData.map(part =>
+        part.no === partNo ? { ...part, status: newStatus } : part
+      )
+    );
+  };
+
+  const handleClosedToggle = (partNo) => {
+    setPartsData(prevData =>
+      prevData.map(part =>
+        part.no === partNo ? { ...part, isClosed: !part.isClosed } : part
+      )
+    );
   };
 
   const sanitizeFilePart = (s) =>
@@ -53,7 +237,7 @@ export default function Parts() {
       setQrGenerating(true);
 
       const payload = {
-        kode: String(part.kode),
+        woNumber: String(part.woNumber),
         nama: String(part.nama),
       };
 
@@ -92,9 +276,9 @@ export default function Parts() {
     try {
       if (!qrPayload || !qrDataUrl) return;
 
-      const kodePart = sanitizeFilePart(qrPayload.kode);
+      const woNumber = sanitizeFilePart(qrPayload.woNumber);
       const namaPart = sanitizeFilePart(qrPayload.nama);
-      const filename = `QR_PART_${kodePart}_${namaPart}.doc`;
+      const filename = `QR_PART_${woNumber}_${namaPart}.doc`;
 
       const html = `<!DOCTYPE html>
         <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -159,8 +343,12 @@ export default function Parts() {
             <tr>
               <th>No.</th>
               <th>Nama Parts</th>
-              <th>Kode</th>
-              <th>Action</th>
+              <th>WO Number</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Closed</th>
+              <th className="text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -168,32 +356,54 @@ export default function Parts() {
               <tr key={part.no}>
                 <td>{part.no}</td>
                 <td>{part.nama}</td>
-                <td>{part.kode}</td>
+                <td>{part.woNumber}</td>
+                <td>{part.startDate}</td>
+                <td>{part.endDate}</td>
                 <td>
+                  <select 
+                    className={`status-select ${part.status === "Working" ? "status-working" : "status-not-working"}`}
+                    value={part.status}
+                    onChange={(e) => handleStatusChange(part.no, e.target.value)}
+                  >
+                    <option value="Working">Working</option>
+                    <option value="Not Working">Not Working</option>
+                  </select>
+                </td>
+                <td>
+                  <label className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      checked={part.isClosed}
+                      onChange={() => handleClosedToggle(part.no)}
+                    />
+                    <span className="checkbox-label">{part.isClosed ? "Closed" : "Open"}</span>
+                  </label>
+                </td>
+                <td className="text-center">
                   <div className="action-buttons">
                     <button 
                       className="action-btn" 
                       onClick={() => handleViewQR(part)}
                       title="View QR"
                     >
-                      <span>View QR</span>
-                      <QrCode size={18} />
+                      <QrCode size={16} />
+                      View QR
                     </button>
                     <button 
                       className="action-btn" 
                       onClick={() => handleEdit(part)}
                       title="Edit"
                     >
-                      <span>Edit</span> 
-                      <Edit size={18} />
+                      <Edit size={16} />
+                      Edit
                     </button>
                     <button 
                       className="action-btn" 
                       onClick={() => handleDelete(part)}
                       title="Delete"
                     >
-                      <span>Delete</span>
-                      <Trash2 size={18} />
+                      <Trash2 size={16} />
+                      Delete
                     </button>
                   </div>
                 </td>
@@ -203,6 +413,7 @@ export default function Parts() {
         </table>
       </div>
 
+      {/* QR Modal */}
       {showQrModal && (
         <>
           <div className="modal-overlay" onClick={handleCloseQrModal}></div>
@@ -240,6 +451,193 @@ export default function Parts() {
                   Download Word
                 </button>
               )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {showAddModal && (
+        <>
+          <div className="modal-overlay" onClick={handleCloseAddModal}></div>
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Add New Part</h2>
+              <button className="modal-close" onClick={handleCloseAddModal}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Nama Parts *</label>
+                <input
+                  type="text"
+                  value={addForm.nama}
+                  onChange={(e) => handleAddFormChange("nama", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan nama parts"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>WO Number *</label>
+                <input
+                  type="text"
+                  value={addForm.woNumber}
+                  onChange={(e) => handleAddFormChange("woNumber", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan WO number (e.g., WO-001)"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Start Date *</label>
+                  <input
+                    type="date"
+                    value={addForm.startDate}
+                    onChange={(e) => handleAddFormChange("startDate", e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date *</label>
+                  <input
+                    type="date"
+                    value={addForm.endDate}
+                    onChange={(e) => handleAddFormChange("endDate", e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={addForm.status}
+                  onChange={(e) => handleAddFormChange("status", e.target.value)}
+                  className={`form-input ${addForm.status === "Working" ? "status-working" : "status-not-working"}`}
+                >
+                  <option value="Working">Working</option>
+                  <option value="Not Working">Not Working</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    checked={addForm.isClosed}
+                    onChange={(e) => handleAddFormChange("isClosed", e.target.checked)}
+                  />
+                  <span className="checkbox-label">
+                    {addForm.isClosed ? "Closed" : "Open"}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleCloseAddModal}>
+                Cancel
+              </button>
+              <button className="btn-save" onClick={handleSaveAdd}>
+                Add Part
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {showEditModal && editingPart && (
+        <>
+          <div className="modal-overlay" onClick={handleCloseEditModal}></div>
+          <div className="modal">
+            <div className="modal-header">
+              <h2>Edit Part</h2>
+              <button className="modal-close" onClick={handleCloseEditModal}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="form-group">
+                <label>WO Number (Read Only)</label>
+                <input
+                  type="text"
+                  value={editingPart.woNumber}
+                  disabled
+                  className="form-input disabled"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Nama Parts</label>
+                <input
+                  type="text"
+                  value={editForm.nama}
+                  onChange={(e) => handleEditFormChange("nama", e.target.value)}
+                  className="form-input"
+                  placeholder="Masukkan nama parts"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <input
+                    type="date"
+                    value={editForm.startDate}
+                    onChange={(e) => handleEditFormChange("startDate", e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date</label>
+                  <input
+                    type="date"
+                    value={editForm.endDate}
+                    onChange={(e) => handleEditFormChange("endDate", e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => handleEditFormChange("status", e.target.value)}
+                  className={`form-input ${editForm.status === "Working" ? "status-working" : "status-not-working"}`}
+                >
+                  <option value="Working">Working</option>
+                  <option value="Not Working">Not Working</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    checked={editForm.isClosed}
+                    onChange={(e) => handleEditFormChange("isClosed", e.target.checked)}
+                  />
+                  <span className="checkbox-label">
+                    {editForm.isClosed ? "Closed" : "Open"}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleCloseEditModal}>
+                Cancel
+              </button>
+              <button className="btn-save" onClick={handleSaveEdit}>
+                Save Changes
+              </button>
             </div>
           </div>
         </>
