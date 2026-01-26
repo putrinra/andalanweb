@@ -223,7 +223,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* DETAIL MODAL */}
       {showDetailModal && selectedDevice && (
         <>
           <div className="modal-overlay" onClick={handleCloseModal}></div>
@@ -261,12 +260,10 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Chart Data and Detail */}
               <div className="content-grid">
                 <div className="chart-section">
                   <h3>Chart Data</h3>
                   
-                  {/* Status Summary */}
                   <div className="status-summary">
                     <div className="status-box status-running">
                       <span className="status-label">● STOP</span>
@@ -288,7 +285,6 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Timeline Chart */}
                   <div className="timeline-chart">
                     <div className="chart-header">
                       <span>Channe-Test1</span>
@@ -345,7 +341,6 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* History Table */}
               <div className="history-table-section">
                 <h3>Tabel Aranged By Hour</h3>
                 <table className="history-table">
