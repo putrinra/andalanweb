@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { X, Trash2, Edit, QrCode } from "lucide-react";
 import QRCode from "qrcode";
-import { saveAs } from "file-saver";
 import searchIcon from "../assets/search.png";
 import "../styles/parts.css";
+import jsPDF from "jspdf";
 
 export default function Parts() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -237,8 +237,8 @@ export default function Parts() {
       setQrGenerating(true);
 
       const payload = {
-        woNumber: String(part.woNumber),
-        nama: String(part.nama),
+        machine_name: String(part.woNumber),
+        name_product: String(part.nama),
       };
 
       setQrPayload(payload);
@@ -272,51 +272,57 @@ export default function Parts() {
     setQrGenerating(false);
   };
 
-  const handleDownloadWord = () => {
-    try {
-      if (!qrPayload || !qrDataUrl) return;
-
-      const woNumber = sanitizeFilePart(qrPayload.woNumber);
-      const namaPart = sanitizeFilePart(qrPayload.nama);
-      const filename = `QR_PART_${woNumber}_${namaPart}.doc`;
-
-      const html = `<!DOCTYPE html>
-        <html xmlns:o="urn:schemas-microsoft-com:office:office"
-              xmlns:w="urn:schemas-microsoft-com:office:word"
-              xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta charset="utf-8">
-          <title>QR</title>
-          <!--[if gte mso 9]>
-          <xml>
-            <w:WordDocument>
-              <w:View>Print</w:View>
-              <w:Zoom>100</w:Zoom>
-              <w:DoNotOptimizeForBrowser/>
-            </w:WordDocument>
-          </xml>
-          <![endif]-->
-          <style>
-            @page { margin: 1in; }
-            body { margin: 0; padding: 0; }
-            .wrap { width: 100%; text-align: center; margin-top: 20px; }
-            img { width: 320px; height: 320px; }
-          </style>
-        </head>
-        <body>
-          <div class="wrap">
-            <img src="${qrDataUrl}" />
-          </div>
-        </body>
-        </html>`;
-
-      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
-      saveAs(blob, filename);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal membuat file Word.");
-    }
-  };
+    const handleDownloadPdf = async () => {
+      try {
+        if (!qrPayload || !qrDataUrl) return;
+  
+        const woPart = sanitizeFilePart(qrPayload.woNumber);
+        const namaPart = sanitizeFilePart(qrPayload.nama);
+        const filename = `QR_PART_${woPart}_${namaPart}.pdf`;
+  
+        // Buat PDF ukuran A4 (portrait), unit mm
+        const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+  
+        // Konversi DataURL QR ke image (base64)
+        // qrDataUrl biasanya: data:image/png;base64,....
+        const imgData = qrDataUrl;
+  
+        const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
+        const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
+  
+        // Setting ukuran QR di PDF
+        const qrSize = 100; // mm (silakan adjust)
+        const x = (pageWidth - qrSize) / 2;
+        const y = 40;
+  
+        // Tambah gambar QR
+        doc.addImage(imgData, "PNG", x, y, qrSize, qrSize);
+  
+        // Teks bawah QR (rata kiri)
+        const textY = y + qrSize + 20;
+  
+        // X teks = kiri QR
+        const textX = x + 6;
+  
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(20);
+  
+        const lines = [
+          `machine_name : ${qrPayload.woNumber}`,
+          `name_product      : ${qrPayload.nama}`,
+        ];
+  
+        lines.forEach((line, i) => {
+          doc.text(line, textX, textY + i * 7);
+        });
+  
+  
+        doc.save(filename);
+      } catch (err) {
+        console.error(err);
+        alert("Gagal membuat PDF.");
+      }
+    };
 
   return (
     <div>
@@ -447,8 +453,8 @@ export default function Parts() {
               </button>
 
               {qrDataUrl && !qrError && (
-                <button className="btn-save" onClick={handleDownloadWord}>
-                  Download Word
+                <button className="btn-save" onClick={handleDownloadPdf}>
+                  Download PDF
                 </button>
               )}
             </div>
