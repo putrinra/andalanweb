@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, Edit, Trash2, X } from "lucide-react";
 import QRCode from "qrcode";
-import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
 import searchIcon from "../assets/search.png";
 import "../styles/manpower.css";
 
@@ -102,50 +102,56 @@ export default function ManPower() {
       .replace(/\s+/g, "_")
       .replace(/[^\w\-]+/g, "_");
 
-  const handleDownloadWord = () => {
+  const handleDownloadPdf = async () => {
     try {
       if (!qrPayload || !qrDataUrl) return;
 
-      const nikPart = sanitizeFilePart(qrPayload.nik);
-      const namaPart = sanitizeFilePart(qrPayload.nama);
-      const idPart = sanitizeFilePart(qrPayload.id);
-      const filename = `QR_${nikPart}_${namaPart}_${idPart}.doc`;
+      const nik = sanitizeFilePart(qrPayload.nik);
+      const nama = sanitizeFilePart(qrPayload.nama);
+      const id = sanitizeFilePart(qrPayload.id);
+      const filename = `QR_${nik}_${nama}_${id}.pdf`;
 
-      const html = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:w="urn:schemas-microsoft-com:office:word"
-      xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-  <meta charset="utf-8">
-  <title>QR</title>
-  <!--[if gte mso 9]>
-  <xml>
-    <w:WordDocument>
-      <w:View>Print</w:View>
-      <w:Zoom>100</w:Zoom>
-      <w:DoNotOptimizeForBrowser/>
-    </w:WordDocument>
-  </xml>
-  <![endif]-->
-  <style>
-    @page { margin: 1in; }
-    body { margin: 0; padding: 0; }
-    .wrap { width: 100%; text-align: center; margin-top: 20px; }
-    img { width: 320px; height: 320px; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <img src="${qrDataUrl}" />
-  </div>
-</body>
-</html>`;
+      // Buat PDF ukuran A4 (portrait), unit mm
+      const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
 
-      const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
-      saveAs(blob, filename);
+      // Konversi DataURL QR ke image (base64)
+      // qrDataUrl biasanya: data:image/png;base64,....
+      const imgData = qrDataUrl;
+
+      const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
+      const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
+
+      // Setting ukuran QR di PDF
+      const qrSize = 100; // mm (silakan adjust)
+      const x = (pageWidth - qrSize) / 2;
+      const y = 40;
+
+      // Tambah gambar QR
+      doc.addImage(imgData, "PNG", x, y, qrSize, qrSize);
+
+      // Teks bawah QR (rata kiri)
+      const textY = y + qrSize + 20;
+
+      // X teks = kiri QR
+      const textX = x + 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(20);
+
+      const lines = [
+        `NIK  : ${qrPayload.nik}`,
+        `Nama : ${qrPayload.nama}`,
+      ];
+
+      lines.forEach((line, i) => {
+        doc.text(line, textX, textY + i * 7);
+      });
+
+
+      doc.save(filename);
     } catch (err) {
       console.error(err);
-      alert("Gagal membuat file Word.");
+      alert("Gagal membuat PDF.");
     }
   };
 
@@ -156,14 +162,15 @@ export default function ManPower() {
       setQrGenerating(true);
 
       const payload = {
-        id: String(person.id),
         nik: String(person.nik),
         nama: String(person.nama),
       };
 
       setQrPayload(payload);
 
-      const jsonString = JSON.stringify(payload);
+      const jsonString = JSON.stringify(payload)
+        .replace(/":/g, '": ')
+        .replace(/","/g, '", "');
 
       const dataUrl = await QRCode.toDataURL(jsonString, {
         margin: 2,
@@ -344,8 +351,8 @@ export default function ManPower() {
               </button>
 
               {qrDataUrl && !qrError && (
-                <button className="btn-save" onClick={handleDownloadWord}>
-                  Download Word
+                <button className="btn-save" onClick={handleDownloadPdf}>
+                  Download PDF
                 </button>
               )}
             </div>
