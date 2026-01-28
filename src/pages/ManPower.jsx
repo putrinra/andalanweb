@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { QrCode, Eye, Edit, Trash2, X } from "lucide-react";
+import { QrCode, Eye, Edit, Trash2, X, Search } from "lucide-react";
 import QRCode from "qrcode";
 import jsPDF from "jspdf";
-import searchIcon from "../assets/search.png";
 import "../styles/manpower.css";
 
 export default function ManPower() {
@@ -230,7 +229,7 @@ export default function ManPower() {
 
         <div className="manpower-top">
           <div className="search-wrapper">
-            <img src={searchIcon} alt="Search" className="search-icon" />
+            <Search className="search-icon" size={20} />
             <input
               type="text"
               placeholder="Search Man Power"
