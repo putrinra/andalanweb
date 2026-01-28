@@ -37,6 +37,12 @@ html, body {
   flex-shrink: 0;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 /* MENU BUTTON */
 .menu-btn {
   background: none;
@@ -108,6 +114,12 @@ html, body {
   overflow-y: auto;
   background: #f5f7fa;
   padding: 20px;
+}
+
+.topbar-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* ===== RESPONSIVE ===== */
