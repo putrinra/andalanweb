@@ -108,31 +108,21 @@ export default function ManPower() {
 
       const nik = sanitizeFilePart(qrPayload.nik);
       const nama = sanitizeFilePart(qrPayload.nama);
-      const id = sanitizeFilePart(qrPayload.id);
-      const filename = `QR_${nik}_${nama}_${id}.pdf`;
+      const filename = `QR_${nik}_${nama}.pdf`;
 
-      // Buat PDF ukuran A4 (portrait), unit mm
       const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
 
-      // Konversi DataURL QR ke image (base64)
-      // qrDataUrl biasanya: data:image/png;base64,....
       const imgData = qrDataUrl;
 
-      const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
-      const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-      // Setting ukuran QR di PDF
-      const qrSize = 100; // mm (silakan adjust)
+      const qrSize = 100;
       const x = (pageWidth - qrSize) / 2;
       const y = 40;
 
-      // Tambah gambar QR
       doc.addImage(imgData, "PNG", x, y, qrSize, qrSize);
 
-      // Teks bawah QR (rata kiri)
       const textY = y + qrSize + 20;
-
-      // X teks = kiri QR
       const textX = x + 6;
 
       doc.setFont("helvetica", "normal");
@@ -146,7 +136,6 @@ export default function ManPower() {
       lines.forEach((line, i) => {
         doc.text(line, textX, textY + i * 7);
       });
-
 
       doc.save(filename);
     } catch (err) {
@@ -236,21 +225,25 @@ export default function ManPower() {
 
   return (
     <div>
-      <div className="manpower-top">
-        <div className="search-wrapper">
-          <img src={searchIcon} alt="Search" className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search Man Power"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">MAN POWER</h1>
 
-        <button className="add-manpower-btn" onClick={handleAddManPower}>
-          Add Man Power
-        </button>
+        <div className="manpower-top">
+          <div className="search-wrapper">
+            <img src={searchIcon} alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search Man Power"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <button className="add-manpower-btn" onClick={handleAddManPower}>
+            Add Man Power
+          </button>
+        </div>
       </div>
 
       <div className="table-container">
@@ -291,24 +284,24 @@ export default function ManPower() {
                       onClick={() => handleViewQR(person)}
                       title="View QR Code"
                     >
-                      <span>View QR</span>
                       <Eye size={18} />
+                      <span>View QR</span>
                     </button>
                     <button
                       className="action-btn edit-btn"
                       onClick={() => handleEdit(person)}
                       title="Edit"
                     >
-                      <span>Edit</span>
                       <Edit size={18} />
+                      <span>Edit</span>
                     </button>
                     <button
                       className="action-btn delete-btn"
                       onClick={() => handleDelete(person.id)}
                       title="Delete"
                     >
-                      <span>Delete</span>
                       <Trash2 size={18} />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </td>
