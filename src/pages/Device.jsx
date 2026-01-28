@@ -151,21 +151,25 @@ export default function Device() {
 
   return (
     <div>
-      <div className="device-top">
-        <div className="search-wrapper">
-          <img src={searchIcon} alt="Search" className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search Device"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">DEVICE</h1>
 
-        <button className="add-device-btn" onClick={handleAddDevice}>
-          Add Device
-        </button>
+        <div className="device-top">
+          <div className="search-wrapper">
+            <img src={searchIcon} alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search Device"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <button className="add-device-btn" onClick={handleAddDevice}>
+            Add Device
+          </button>
+        </div>
       </div>
 
       <div className="table-container">
@@ -220,7 +224,8 @@ export default function Device() {
           </tbody>
         </table>
       </div>
-      
+
+      {/* Add Modal */}
       {showAddModal && (
         <>
           <div className="modal-overlay" onClick={handleCloseAddModal}></div>
@@ -280,6 +285,7 @@ export default function Device() {
         </>
       )}
 
+      {/* Edit Modal */}
       {showEditModal && editingDevice && (
         <>
           <div className="modal-overlay" onClick={handleCloseEditModal}></div>
