@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { X, Trash2, QrCode, History } from "lucide-react";
+import { Search, X, Trash2, QrCode, History } from "lucide-react";
 import QRCode from "qrcode";
-import searchIcon from "../assets/search.png";
 import "../styles/parts.css";
 import jsPDF from "jspdf";
 
@@ -239,7 +238,7 @@ export default function Parts() {
       
               <div className="parts-top">
                 <div className="search-wrapper">
-                  <img src={searchIcon} alt="Search" className="search-icon" />
+                  <Search className="search-icon" size={20} />
                   <input
                     type="text"
                     placeholder="Search Parts"
