@@ -194,21 +194,25 @@ export default function WorkOrder() {
 
   return (
     <div>
-      <div className="workorder-top">
-        <div className="search-wrapper">
-          <img src={searchIcon} alt="Search" className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search Work Order"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
+      <div className="page-header">
+        <h1 className="page-title">WORK ORDER</h1>
 
-        <button className="add-workorder-btn" onClick={handleAddWorkOrder}>
-          Add Work Order
-        </button>
+        <div className="workorder-top">
+          <div className="search-wrapper">
+            <img src={searchIcon} alt="Search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search Work Order"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <button className="add-workorder-btn" onClick={handleAddWorkOrder}>
+            Add Work Order
+          </button>
+        </div>
       </div>
 
       <div className="table-container">
