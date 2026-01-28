@@ -51,6 +51,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  margin-right: 25px;
 }
 
 .add-workorder-btn:hover {
