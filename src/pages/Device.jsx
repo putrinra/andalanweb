@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Edit, Trash2, X } from "lucide-react";
-import searchIcon from "../assets/search.png";
+import { Edit, Trash2, X, Search } from "lucide-react";
 import "../styles/device.css";
 
 export default function Device() {
@@ -50,23 +49,19 @@ export default function Device() {
   };
 
   const handleSaveAdd = () => {
-    // Validasi form
     if (!addForm.name || !addForm.serialNumber) {
       alert("Please fill in all required fields");
       return;
     }
 
-    // Cek apakah Serial Number sudah ada
     const snExists = devices.some(device => device.serialNumber === addForm.serialNumber);
     if (snExists) {
       alert("Serial Number already exists. Please use a different Serial Number.");
       return;
     }
 
-    // Generate nomor baru
     const newNo = devices.length > 0 ? Math.max(...devices.map(d => d.no)) + 1 : 1;
 
-    // Tambah device baru
     const newDevice = {
       no: newNo,
       name: addForm.name,
@@ -156,7 +151,7 @@ export default function Device() {
 
         <div className="device-top">
           <div className="search-wrapper">
-            <img src={searchIcon} alt="Search" className="search-icon" />
+            <Search className="search-icon" size={20} />
             <input
               type="text"
               placeholder="Search Device"
