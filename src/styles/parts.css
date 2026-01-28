@@ -51,6 +51,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  margin-right: 25px;
 }
 
 .add-parts-btn:hover {
@@ -445,6 +446,16 @@
 .history-table-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .parts-top {
