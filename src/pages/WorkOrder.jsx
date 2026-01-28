@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { X, Trash2, Edit } from "lucide-react";
-import searchIcon from "../assets/search.png";
+import { Search, X, Trash2, Edit } from "lucide-react";
 import "../styles/workorder.css";
 
 export default function WorkOrder() {
@@ -91,23 +90,19 @@ export default function WorkOrder() {
   };
 
   const handleSaveAdd = () => {
-    // Validasi form
     if (!addForm.woNumber || !addForm.device || !addForm.parts || !addForm.date) {
       alert("Please fill in all required fields");
       return;
     }
 
-    // Cek apakah WO Number sudah ada
     const woExists = workOrderData.some(wo => wo.woNumber === addForm.woNumber);
     if (woExists) {
       alert("WO Number already exists. Please use a different WO Number.");
       return;
     }
 
-    // Generate nomor baru
     const newNo = workOrderData.length > 0 ? Math.max(...workOrderData.map(wo => wo.no)) + 1 : 1;
 
-    // Tambah work order baru
     const newWO = {
       no: newNo,
       woNumber: addForm.woNumber,
@@ -199,7 +194,7 @@ export default function WorkOrder() {
 
         <div className="workorder-top">
           <div className="search-wrapper">
-            <img src={searchIcon} alt="Search" className="search-icon" />
+            <Search className="search-icon" size={20} />
             <input
               type="text"
               placeholder="Search Work Order"
