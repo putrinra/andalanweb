@@ -8,6 +8,7 @@ import WorkOrder from "./pages/WorkOrder";
 import Sidebar from "./components/Sidebar";
 import menuIcon from "./assets/menu.png";
 import "./App.css";
+import logo2 from "./assets/logo2.png";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
@@ -51,23 +52,6 @@ function App() {
     }
   };
 
-  const formatPageTitle = (page) => {
-  switch(page) {
-    case "dashboard":
-      return "DASHBOARD";
-    case "device":
-      return "DEVICE";
-    case "manpower":
-      return "MAN POWER";
-    case "parts":
-      return "PARTS";
-    case "workorder":
-      return "WORK ORDER";
-    default:
-      return page.toUpperCase();
-  }
-};
-
   if (!isAuth) {
     return <Login onLogin={handleLogin} />;
   }
@@ -76,15 +60,14 @@ function App() {
     <div className="app-layout">
       {/* ===== TOPBAR ===== */}
       <header className="topbar">
+        <div className="topbar-left">
         <button className="menu-btn" onClick={toggleSidebar}>
           <img src={menuIcon} alt="Menu" />
           <title>Toggle Sidebar</title>
         </button>
-
-        <h1 className="topbar-title">
-          {formatPageTitle(currentPage)}
-        </h1>
-
+        <img src={logo2} alt="Company Logo" className="topbar-logo" />
+        </div>
+        
         <div className="topbar-right">
           <span>Welcome, user!</span>
           <button className="logout-btn" onClick={handleLogout}>
