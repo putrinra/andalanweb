@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Trash2, Edit, QrCode } from "lucide-react";
+import { X, Trash2, QrCode, History } from "lucide-react";
 import QRCode from "qrcode";
 import searchIcon from "../assets/search.png";
 import "../styles/parts.css";
@@ -8,21 +8,13 @@ import jsPDF from "jspdf";
 export default function Parts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showQrModal, setShowQrModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [qrPayload, setQrPayload] = useState(null);
   const [qrError, setQrError] = useState("");
   const [qrGenerating, setQrGenerating] = useState(false);
-  const [editingPart, setEditingPart] = useState(null);
-  const [editForm, setEditForm] = useState({
-    nama: "",
-    woNumber: "",
-    startDate: "",
-    endDate: "",
-    status: "Working",
-    isClosed: false
-  });
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedPartHistory, setSelectedPartHistory] = useState(null);
   const [addForm, setAddForm] = useState({
     nama: "",
     woNumber: "",
@@ -40,43 +32,12 @@ export default function Parts() {
       startDate: "2026-01-15",
       endDate: "2026-01-25",
       status: "Working",
-      isClosed: false
-    },
-    { 
-      no: 2, 
-      nama: "Belt", 
-      woNumber: "WO-002",
-      startDate: "2026-01-18",
-      endDate: "2026-01-28",
-      status: "Working",
-      isClosed: false
-    },
-    { 
-      no: 3, 
-      nama: "Oil Filter", 
-      woNumber: "WO-003",
-      startDate: "2026-01-10",
-      endDate: "2026-01-20",
-      status: "Not Working",
-      isClosed: true
-    },
-    { 
-      no: 4, 
-      nama: "Gasket", 
-      woNumber: "WO-004",
-      startDate: "2026-01-12",
-      endDate: "2026-01-22",
-      status: "Working",
-      isClosed: false
-    },
-    { 
-      no: 5, 
-      nama: "Bolt M10", 
-      woNumber: "WO-005",
-      startDate: "2026-01-20",
-      endDate: "2026-01-30",
-      status: "Not Working",
-      isClosed: false
+      isClosed: false,
+      history: [
+        { no: 1, name: "SAMSUNG", machineName: "EXYNOS", startDate: "2026-01-27", endDate: "2026-01-27", status: "stop", manpower: "Alice Brotoseno" },
+        { no: 2, name: "SAMSUNG", machineName: "EXYNOS", startDate: "2026-01-27", endDate: "2026-01-27", status: "start", manpower: "Alice Brotoseno" },
+        { no: 3, name: "SAMSUNG", machineName: "EXYNOS", startDate: "2026-01-27", endDate: "2026-01-27", status: "stop", manpower: "Alice Brotoseno" },
+      ]
     },
   ]);
 
@@ -105,12 +66,22 @@ export default function Parts() {
     }));
   };
 
+  const handleViewHistory = (part) => {
+    setSelectedPartHistory(part);
+    setShowHistoryModal(true);
+  };
+
+  const handleCloseHistoryModal = () => {
+    setShowHistoryModal(false);
+    setSelectedPartHistory(null);
+  };
+
   const handleSaveAdd = () => {
     if (!addForm.nama || !addForm.woNumber || !addForm.startDate || !addForm.endDate) {
       alert("Please fill in all required fields");
       return;
     }
-
+    
     const woExists = partsData.some(part => part.woNumber === addForm.woNumber);
     if (woExists) {
       alert("WO Number already exists. Please use a different WO Number.");
@@ -126,7 +97,8 @@ export default function Parts() {
       startDate: addForm.startDate,
       endDate: addForm.endDate,
       status: addForm.status,
-      isClosed: addForm.isClosed
+      isClosed: addForm.isClosed,
+      history: []
     };
 
     setPartsData(prev => [...prev, newPart]);
@@ -137,62 +109,6 @@ export default function Parts() {
   const handleCloseAddModal = () => {
     setShowAddModal(false);
     setAddForm({
-      nama: "",
-      woNumber: "",
-      startDate: "",
-      endDate: "",
-      status: "Working",
-      isClosed: false
-    });
-  };
-
-  const handleEdit = (part) => {
-    setEditingPart(part);
-    setEditForm({
-      nama: part.nama,
-      woNumber: part.woNumber,
-      startDate: part.startDate,
-      endDate: part.endDate,
-      status: part.status,
-      isClosed: part.isClosed
-    });
-    setShowEditModal(true);
-  };
-
-  const handleEditFormChange = (field, value) => {
-    setEditForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSaveEdit = () => {
-    if (!editingPart) return;
-
-    setPartsData(prevData =>
-      prevData.map(part =>
-        part.no === editingPart.no
-          ? {
-              ...part,
-              nama: editForm.nama,
-              woNumber: editForm.woNumber,
-              startDate: editForm.startDate,
-              endDate: editForm.endDate,
-              status: editForm.status,
-              isClosed: editForm.isClosed
-            }
-          : part
-      )
-    );
-
-    handleCloseEditModal();
-    alert("Part updated successfully!");
-  };
-
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setEditingPart(null);
-    setEditForm({
       nama: "",
       woNumber: "",
       startDate: "",
@@ -272,57 +188,49 @@ export default function Parts() {
     setQrGenerating(false);
   };
 
-    const handleDownloadPdf = async () => {
-      try {
-        if (!qrPayload || !qrDataUrl) return;
-  
-        const woPart = sanitizeFilePart(qrPayload.woNumber);
-        const namaPart = sanitizeFilePart(qrPayload.nama);
-        const filename = `QR_PART_${woPart}_${namaPart}.pdf`;
-  
-        // Buat PDF ukuran A4 (portrait), unit mm
-        const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
-  
-        // Konversi DataURL QR ke image (base64)
-        // qrDataUrl biasanya: data:image/png;base64,....
-        const imgData = qrDataUrl;
-  
-        const pageWidth = doc.internal.pageSize.getWidth();   // ~210mm
-        const pageHeight = doc.internal.pageSize.getHeight(); // ~297mm
-  
-        // Setting ukuran QR di PDF
-        const qrSize = 100; // mm (silakan adjust)
-        const x = (pageWidth - qrSize) / 2;
-        const y = 40;
-  
-        // Tambah gambar QR
-        doc.addImage(imgData, "PNG", x, y, qrSize, qrSize);
-  
-        // Teks bawah QR (rata kiri)
-        const textY = y + qrSize + 20;
-  
-        // X teks = kiri QR
-        const textX = x + 6;
-  
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(20);
-  
-        const lines = [
-          `machine_name : ${qrPayload.woNumber}`,
-          `name_product      : ${qrPayload.nama}`,
-        ];
-  
-        lines.forEach((line, i) => {
-          doc.text(line, textX, textY + i * 7);
-        });
-  
-  
-        doc.save(filename);
-      } catch (err) {
-        console.error(err);
-        alert("Gagal membuat PDF.");
-      }
-    };
+  const handleDownloadPdf = async () => {
+    try {
+      if (!qrPayload || !qrDataUrl) return;
+
+      const woPart = sanitizeFilePart(qrPayload.machine_name);
+      const namaPart = sanitizeFilePart(qrPayload.name_product);
+      const filename = `QR_PART_${woPart}_${namaPart}.pdf`;
+
+      const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+
+      const imgData = qrDataUrl;
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const qrSize = 100;
+      const x = (pageWidth - qrSize) / 2;
+      const y = 40;
+
+      doc.addImage(imgData, "PNG", x, y, qrSize, qrSize);
+
+      const textY = y + qrSize + 20;
+
+      const textX = x + 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(20);
+
+      const lines = [
+        `machine_name : ${qrPayload.machine_name}`,
+        `name_product      : ${qrPayload.name_product}`,
+      ];
+
+      lines.forEach((line, i) => {
+        doc.text(line, textX, textY + i * 7);
+      });
+
+      doc.save(filename);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal membuat PDF.");
+    }
+  };
 
   return (
     <div>
@@ -397,19 +305,19 @@ export default function Parts() {
                     </button>
                     <button 
                       className="action-btn" 
-                      onClick={() => handleEdit(part)}
-                      title="Edit"
-                    >
-                      <Edit size={16} />
-                      Edit
-                    </button>
-                    <button 
-                      className="action-btn" 
                       onClick={() => handleDelete(part)}
                       title="Delete"
                     >
                       <Trash2 size={16} />
                       Delete
+                    </button>
+                    <button 
+                      className="action-btn" 
+                      onClick={() => handleViewHistory(part)}
+                      title="History"
+                    >
+                      <History size={16} />
+                      History
                     </button>
                   </div>
                 </td>
@@ -418,8 +326,68 @@ export default function Parts() {
           </tbody>
         </table>
       </div>
+      
+      {showHistoryModal && selectedPartHistory && (
+        <>
+          <div className="modal-overlay" onClick={handleCloseHistoryModal}></div>
+          <div className="modal modal-large">
+            <div className="modal-header">
+              <h2>History - {selectedPartHistory.nama} ({selectedPartHistory.woNumber})</h2>
+              <button className="modal-close" onClick={handleCloseHistoryModal}>
+                <X size={24} />
+              </button>
+            </div>
 
-      {/* QR Modal */}
+            <div className="modal-body">
+              {selectedPartHistory.history && selectedPartHistory.history.length > 0 ? (
+                <div className="history-table-container">
+                  <table className="history-table">
+                    <thead>
+                      <tr>
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>Machine Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Manpower</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedPartHistory.history.map((log) => (
+                        <tr key={log.no}>
+                          <td>{log.no}</td>
+                          <td>{log.name}</td>
+                          <td>{log.machineName}</td>
+                          <td>{log.startDate}</td>
+                          <td>{log.endDate}</td>
+                          <td>
+                            <span className={`history-status ${log.status === "start" ? "status-start" : "status-stop"}`}>
+                              {log.status}
+                            </span>
+                          </td>
+                          <td>{log.manpower}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+                  No history available for this part
+                </p>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleCloseHistoryModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {showQrModal && (
         <>
           <div className="modal-overlay" onClick={handleCloseQrModal}></div>
@@ -550,99 +518,6 @@ export default function Parts() {
               </button>
               <button className="btn-save" onClick={handleSaveAdd}>
                 Add Part
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-      
-      {showEditModal && editingPart && (
-        <>
-          <div className="modal-overlay" onClick={handleCloseEditModal}></div>
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Edit Part</h2>
-              <button className="modal-close" onClick={handleCloseEditModal}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="form-group">
-                <label>WO Number (Read Only)</label>
-                <input
-                  type="text"
-                  value={editingPart.woNumber}
-                  disabled
-                  className="form-input disabled"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Nama Parts</label>
-                <input
-                  type="text"
-                  value={editForm.nama}
-                  onChange={(e) => handleEditFormChange("nama", e.target.value)}
-                  className="form-input"
-                  placeholder="Masukkan nama parts"
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date</label>
-                  <input
-                    type="date"
-                    value={editForm.startDate}
-                    onChange={(e) => handleEditFormChange("startDate", e.target.value)}
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>End Date</label>
-                  <input
-                    type="date"
-                    value={editForm.endDate}
-                    onChange={(e) => handleEditFormChange("endDate", e.target.value)}
-                    className="form-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  value={editForm.status}
-                  onChange={(e) => handleEditFormChange("status", e.target.value)}
-                  className={`form-input ${editForm.status === "Working" ? "status-working" : "status-not-working"}`}
-                >
-                  <option value="Working">Working</option>
-                  <option value="Not Working">Not Working</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="checkbox-container">
-                  <input
-                    type="checkbox"
-                    checked={editForm.isClosed}
-                    onChange={(e) => handleEditFormChange("isClosed", e.target.checked)}
-                  />
-                  <span className="checkbox-label">
-                    {editForm.isClosed ? "Closed" : "Open"}
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn-cancel" onClick={handleCloseEditModal}>
-                Cancel
-              </button>
-              <button className="btn-save" onClick={handleSaveEdit}>
-                Save Changes
               </button>
             </div>
           </div>
