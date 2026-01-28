@@ -315,6 +315,15 @@
   background: #093a6d;
 }
 
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .action-buttons {
@@ -326,6 +335,7 @@
     justify-content: center;
   }
 }
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
