@@ -234,22 +234,26 @@ export default function Parts() {
 
   return (
     <div>
-      <div className="parts-top">
-        <div className="search-wrapper">
-          <img src={searchIcon} alt="Search" className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search Parts"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-        </div>
+      <div className="page-header">
+              <h1 className="page-title">PARTS</h1>
+      
+              <div className="parts-top">
+                <div className="search-wrapper">
+                  <img src={searchIcon} alt="Search" className="search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search Parts"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
 
-        <button className="add-parts-btn" onClick={handleAddPart}>
-          Add Parts
-        </button>
-      </div>
+                <button className="add-parts-btn" onClick={handleAddPart}>
+                  Add Parts
+                </button>
+              </div>
+            </div>
 
       <div className="table-container">
         <table className="parts-table">
@@ -305,19 +309,19 @@ export default function Parts() {
                     </button>
                     <button 
                       className="action-btn" 
-                      onClick={() => handleDelete(part)}
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                      Delete
-                    </button>
-                    <button 
-                      className="action-btn" 
                       onClick={() => handleViewHistory(part)}
                       title="History"
                     >
                       <History size={16} />
                       History
+                    </button>
+                    <button 
+                      className="action-btn" 
+                      onClick={() => handleDelete(part)}
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                      Delete
                     </button>
                   </div>
                 </td>
