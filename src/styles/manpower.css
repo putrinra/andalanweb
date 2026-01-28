@@ -11,7 +11,7 @@
 .search-wrapper {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .search-icon {
@@ -51,6 +51,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  margin-right: 25px;
 }
 
 .add-manpower-btn:hover {
