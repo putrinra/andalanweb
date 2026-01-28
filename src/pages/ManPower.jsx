@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Edit, Trash2, X } from "lucide-react";
+import { QrCode, Eye, Edit, Trash2, X } from "lucide-react";
 import QRCode from "qrcode";
 import jsPDF from "jspdf";
 import searchIcon from "../assets/search.png";
@@ -284,7 +284,7 @@ export default function ManPower() {
                       onClick={() => handleViewQR(person)}
                       title="View QR Code"
                     >
-                      <Eye size={18} />
+                      <QrCode size={18} />
                       <span>View QR</span>
                     </button>
                     <button
